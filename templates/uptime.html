@@ -1,0 +1,62 @@
+{% extends "dashboard.html" %}
+{% block content %}
+<div class="section">
+    <h2>📈 Uptime Monitor</h2>
+    <form id="addMonitorForm">
+        <input type="text" id="monitorName" placeholder="Tên monitor" required>
+        <input type="url" id="monitorUrl" placeholder="URL cần theo dõi" required>
+        <input type="number" id="monitorInterval" placeholder="Interval (giây)" value="60">
+        <input type="url" id="monitorWebhook" placeholder="Discord Webhook (tùy chọn)">
+        <button type="submit">➕ Thêm Monitor</button>
+    </form>
+</div>
+
+<div class="section">
+    <h2>📋 Danh sách Monitor</h2>
+    {% if monitors %}
+        {% for m in monitors %}
+        <div class="monitor-item">
+            <div>
+                <strong>{{ m[1] }}</strong>
+                <span style="color:#8b949e;font-size:13px;">{{ m[2] }}</span>
+            </div>
+            <div class="status">
+                <span class="dot {{ m[4] }}"></span>
+                <span style="font-size:13px;">{{ m[4] }}</span>
+                <span style="color:#8b949e;font-size:12px;">Last: {{ m[5] }}</span>
+                <button class="btn btn-ghost" onclick="checkMonitor({{ m[0] }})">🔄 Check</button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:#8b949e;">Chưa có monitor nào.</p>
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('addMonitorForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('monitorName').value,
+        url: document.getElementById('monitorUrl').value,
+        interval: parseInt(document.getElementById('monitorInterval').value) || 60,
+        webhook_url: document.getElementById('monitorWebhook').value || ''
+    };
+    const res = await fetch('/uptime/add', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    if (res.ok) {
+        alert('✅ Đã thêm monitor!');
+        location.reload();
+    }
+};
+
+async function checkMonitor(id) {
+    const res = await fetch('/uptime/check/' + id, {method: 'POST'});
+    const data = await res.json();
+    alert('📊 Status: ' + data.status + ' | Latency: ' + data.latency + 'ms');
+}
+</script>
+{% endblock %}
