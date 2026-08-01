@@ -1,0 +1,54 @@
+{% extends "dashboard.html" %}
+{% block content %}
+<div class="section">
+    <h2>🤖 Host Bot Discord</h2>
+    <form id="hostBotForm">
+        <input type="text" id="botName" placeholder="Tên bot" required>
+        <textarea id="botCode" placeholder="Code Python (.py)" rows="10" required></textarea>
+        <textarea id="botEnv" placeholder="ENV Variables (JSON)" rows="3">{}</textarea>
+        <button type="submit">🚀 Host Bot</button>
+    </form>
+    <div id="botMessage" style="margin-top:10px;"></div>
+</div>
+
+<div class="section">
+    <h2>📋 Bot của bạn</h2>
+    {% if bots %}
+        {% for bot in bots %}
+        <div class="api-item">
+            <div class="info">
+                <span class="name">{{ bot[1] }}</span>
+                <span style="color:#8b949e;font-size:12px;">Created: {{ bot[2] }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:#8b949e;">Bạn chưa host bot nào.</p>
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('hostBotForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('botName').value,
+        code: document.getElementById('botCode').value,
+        env: document.getElementById('botEnv').value
+    };
+    const res = await fetch('/bot/host', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) {
+        document.getElementById('botMessage').innerHTML = '✅ ' + result.message;
+        document.getElementById('botMessage').style.color = '#3fb950';
+        setTimeout(() => location.reload(), 2000);
+    } else {
+        document.getElementById('botMessage').innerHTML = '❌ ' + result.error;
+        document.getElementById('botMessage').style.color = '#f85149';
+    }
+};
+</script>
+{% endblock %}
