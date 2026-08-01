@@ -1,0 +1,46 @@
+{% extends "dashboard.html" %}
+{% block content %}
+<div class="section">
+    <h2>⚙️ Executor API</h2>
+    <form id="createExecForm">
+        <input type="text" id="execName" placeholder="Tên Executor" required>
+        <textarea id="execScript" placeholder="Script Lua" rows="10" required></textarea>
+        <button type="submit">⚙️ Tạo Executor</button>
+    </form>
+</div>
+
+<div class="section">
+    <h2>📋 Danh sách Executor</h2>
+    {% if execs %}
+        {% for e in execs %}
+        <div class="api-item">
+            <div class="info">
+                <span class="name">{{ e[1] }}</span>
+                <span style="color:#8b949e;font-size:12px;">Created: {{ e[2] }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:#8b949e;">Chưa có executor nào.</p>
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('createExecForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('execName').value,
+        script: document.getElementById('execScript').value
+    };
+    const res = await fetch('/exec/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    if (res.ok) {
+        alert('✅ Đã tạo executor!');
+        location.reload();
+    }
+};
+</script>
+{% endblock %}
