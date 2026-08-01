@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container" style="max-width:500px;">
+        <div class="header"><h1>📝 Đăng ký</h1></div>
+        <div class="section">
+            <form id="registerForm">
+                <input type="text" id="username" placeholder="Tên đăng nhập" required>
+                <input type="password" id="password" placeholder="Mật khẩu" required>
+                <button type="submit">Đăng ký</button>
+            </form>
+            <div id="message" style="margin-top:10px;color:#3fb950;"></div>
+            <p style="margin-top:15px;color:#8b949e;">Đã có tài khoản? <a href="/login" style="color:#58a6ff;">Đăng nhập</a></p>
+        </div>
+    </div>
+    <script>
+        document.getElementById('registerForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const data = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            };
+            const res = await fetch('/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            if (result.success) {
+                document.getElementById('message').textContent = '✅ ' + result.message;
+                setTimeout(() => window.location.href = '/login', 1500);
+            } else {
+                document.getElementById('message').textContent = '❌ ' + result.error;
+                document.getElementById('message').style.color = '#f85149';
+            }
+        };
+    </script>
+</body>
+</html>
