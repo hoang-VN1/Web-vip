@@ -1,0 +1,79 @@
+{% extends "dashboard.html" %}
+{% block content %}
+<div class="section">
+    <h2>📡 <span class="icon">🔑</span> Quản lý API</h2>
+    <form id="createApiForm">
+        <input type="text" id="apiName" placeholder="Tên API" required>
+        <input type="url" id="webhookUrl" placeholder="Webhook URL (tùy chọn)">
+        <input type="number" id="maxBoss" placeholder="Max Boss" value="100">
+        <div style="display:flex;gap:10px;">
+            <input type="text" id="prefix" placeholder="Prefix" style="flex:1;">
+            <input type="text" id="suffix" placeholder="Suffix" style="flex:1;">
+        </div>
+        <button type="submit">🚀 Tạo API</button>
+    </form>
+    <div id="apiMessage" style="margin-top:10px;"></div>
+</div>
+
+<div class="section">
+    <h2>📋 Danh sách API của bạn</h2>
+    {% if api_keys %}
+        {% for api in api_keys %}
+        <div class="api-item">
+            <div class="info">
+                <span class="name">{{ api[2] }}</span>
+                <code>{{ api[1] }}</code>
+                <span style="color:#8b949e;font-size:12px;">Max Boss: {{ api[4] }}</span>
+            </div>
+            <div class="actions">
+                <button class="btn btn-ghost" onclick="copyKey('{{ api[1] }}')">📋 Copy</button>
+                <button class="btn btn-danger" onclick="deleteApi({{ api[0] }})">🗑️ Xóa</button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:#8b949e;">Bạn chưa có API nào. Hãy tạo API mới!</p>
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('createApiForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('apiName').value,
+        webhook_url: document.getElementById('webhookUrl').value || '',
+        max_boss: parseInt(document.getElementById('maxBoss').value) || 100,
+        prefix: document.getElementById('prefix').value || '',
+        suffix: document.getElementById('suffix').value || ''
+    };
+    const res = await fetch('/api/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) {
+        document.getElementById('apiMessage').innerHTML = '✅ ' + result.message + ' Key: <code>' + result.api_key + '</code>';
+        document.getElementById('apiMessage').style.color = '#3fb950';
+        setTimeout(() => location.reload(), 2000);
+    } else {
+        document.getElementById('apiMessage').innerHTML = '❌ ' + result.error;
+        document.getElementById('apiMessage').style.color = '#f85149';
+    }
+};
+
+function copyKey(key) {
+    navigator.clipboard.writeText(key);
+    alert('✅ Đã copy API key!');
+}
+
+async function deleteApi(id) {
+    if (!confirm('Bạn có chắc muốn xóa API này?')) return;
+    const res = await fetch('/api/delete/' + id, {method: 'POST'});
+    if (res.ok) {
+        alert('✅ Đã xóa API!');
+        location.reload();
+    }
+}
+</script>
+{% endblock %}
