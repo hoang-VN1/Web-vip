@@ -1,0 +1,48 @@
+{% extends "dashboard.html" %}
+{% block content %}
+<div class="section">
+    <h2>🔐 CreAPI - Hệ thống Key</h2>
+    <form id="createKeySystemForm">
+        <input type="text" id="keyBotToken" placeholder="Bot Token" required>
+        <input type="text" id="keyBotName" placeholder="Tên Bot" required>
+        <input type="text" id="keyAdminId" placeholder="Admin Discord ID" required>
+        <button type="submit">🔐 Tạo Key System</button>
+    </form>
+</div>
+
+<div class="section">
+    <h2>📋 Danh sách Key System</h2>
+    {% if systems %}
+        {% for s in systems %}
+        <div class="api-item">
+            <div class="info">
+                <span class="name">{{ s[2] }}</span>
+                <span style="color:#8b949e;font-size:12px;">Admin ID: {{ s[3] }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:#8b949e;">Chưa có key system nào.</p>
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('createKeySystemForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const data = {
+        bot_token: document.getElementById('keyBotToken').value,
+        bot_name: document.getElementById('keyBotName').value,
+        admin_id: document.getElementById('keyAdminId').value
+    };
+    const res = await fetch('/creapi/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    if (res.ok) {
+        alert('✅ Đã tạo key system!');
+        location.reload();
+    }
+};
+</script>
+{% endblock %}
