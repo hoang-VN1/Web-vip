@@ -1,0 +1,47 @@
+{% extends "dashboard.html" %}
+{% block content %}
+<div class="section">
+    <h2>📜 Auto Quest Discord</h2>
+    <form id="addQuestForm">
+        <input type="text" id="questToken" placeholder="Discord Token" required>
+        <input type="number" id="questDelay" placeholder="Delay (giây)" value="60">
+        <button type="submit">➕ Thêm Quest</button>
+    </form>
+</div>
+
+<div class="section">
+    <h2>📋 Danh sách Quest</h2>
+    {% if quests %}
+        {% for q in quests %}
+        <div class="api-item">
+            <div class="info">
+                <span class="name">Token: {{ q[1][:20] }}...</span>
+                <span style="color:#8b949e;font-size:12px;">Delay: {{ q[2] }}s</span>
+                <span style="color:{{ 'green' if q[3]=='running' else 'red' }};">{{ q[3] }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:#8b949e;">Chưa có quest nào.</p>
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('addQuestForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const data = {
+        discord_token: document.getElementById('questToken').value,
+        delay: parseInt(document.getElementById('questDelay').value) || 60
+    };
+    const res = await fetch('/quest/add', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    if (res.ok) {
+        alert('✅ Đã thêm quest!');
+        location.reload();
+    }
+};
+</script>
+{% endblock %}
