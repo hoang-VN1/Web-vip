@@ -1,0 +1,47 @@
+{% extends "dashboard.html" %}
+{% block content %}
+<div class="stats" style="grid-template-columns:repeat(4,1fr);">
+    <div class="stat-card"><div class="number">{{ stats.total_users }}</div><div class="label">Users</div></div>
+    <div class="stat-card"><div class="number">{{ stats.total_api }}</div><div class="label">API Keys</div></div>
+    <div class="stat-card"><div class="number">{{ stats.total_jobs }}</div><div class="label">Jobs</div></div>
+    <div class="stat-card"><div class="number">{{ stats.total_monitors }}</div><div class="label">Monitors</div></div>
+    <div class="stat-card"><div class="number">{{ stats.total_shields }}</div><div class="label">Shields</div></div>
+    <div class="stat-card"><div class="number">{{ stats.total_quests }}</div><div class="label">Quests</div></div>
+    <div class="stat-card"><div class="number">{{ stats.total_exec }}</div><div class="label">Executors</div></div>
+    <div class="stat-card"><div class="number">{{ stats.total_keysystems }}</div><div class="label">Key Systems</div></div>
+</div>
+
+<div class="section">
+    <h2>👥 Quản lý người dùng</h2>
+    <table>
+        <tr><th>ID</th><th>Username</th><th>Role</th><th>Created</th><th>Action</th></tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user[0] }}</td>
+            <td>{{ user[1] }}</td>
+            <td>{{ user[2] }}</td>
+            <td>{{ user[3] }}</td>
+            <td>
+                <select onchange="updateRole({{ user[0] }}, this.value)" style="padding:4px 8px;border-radius:4px;background:#0a0e17;color:#e6edf3;border:1px solid #1e2a3a;">
+                    <option value="user" {% if user[2]=='user' %}selected{% endif %}>User</option>
+                    <option value="vip" {% if user[2]=='vip' %}selected{% endif %}>VIP</option>
+                    <option value="admin" {% if user[2]=='admin' %}selected{% endif %}>Admin</option>
+                </select>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<script>
+async function updateRole(userId, role) {
+    if (!confirm('Đổi role cho user này?')) return;
+    const res = await fetch('/owner/update_role', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({user_id: userId, role: role})
+    });
+    if (res.ok) alert('✅ Đã cập nhật role!');
+}
+</script>
+{% endblock %}
