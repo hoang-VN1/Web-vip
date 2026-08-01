@@ -1,0 +1,55 @@
+{% extends "dashboard.html" %}
+{% block content %}
+<div class="section">
+    <h2>🛡️ Shield Webhook</h2>
+    <form id="createShieldForm">
+        <input type="text" id="shieldName" placeholder="Tên Shield" required>
+        <input type="url" id="shieldWebhook" placeholder="Discord Webhook URL" required>
+        <button type="submit">🛡️ Tạo Shield</button>
+    </form>
+</div>
+
+<div class="section">
+    <h2>📋 Danh sách Shield</h2>
+    {% if shields %}
+        {% for s in shields %}
+        <div class="api-item">
+            <div class="info">
+                <span class="name">{{ s[1] }}</span>
+                <code>/shield/{{ s[3] }}</code>
+            </div>
+            <div class="actions">
+                <button class="btn btn-ghost" onclick="copyLink('{{ s[3] }}')">📋 Copy</button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:#8b949e;">Chưa có shield nào.</p>
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('createShieldForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('shieldName').value,
+        webhook_url: document.getElementById('shieldWebhook').value
+    };
+    const res = await fetch('/shield/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) {
+        alert('✅ Shield created! Link: /shield/' + result.link);
+        location.reload();
+    }
+};
+
+function copyLink(link) {
+    navigator.clipboard.writeText(window.location.origin + '/shield/' + link);
+    alert('✅ Đã copy link!');
+}
+</script>
+{% endblock %}
